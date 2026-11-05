@@ -13,7 +13,7 @@ void LaneManager::Init(void)
 		// 1本分の配置と担当キーを設定
 		lanes_[laneIdx].Init(left,
 			LANE_TOP, LANE_WIDTH, LANE_BOTTOM,
-			JUDGE_LINE_Y, keyNames_[laneIdx]
+			JUDGE_LINE_Y, keyNames_[laneIdx], laneIdx
 		);
 
 		// レーンで使用するキーを入力管理に登録

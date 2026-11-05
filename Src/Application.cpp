@@ -4,6 +4,7 @@
 #include "Manager/ResourceManager.h"
 #include "Manager/SceneManager.h"
 #include "Manager/MusicManager.h"
+#include "Manager/SoundManager.h"
 #include "Common/FpsController.h"
 #include "Application.h"
 
@@ -71,6 +72,12 @@ void Application::Init(void)
 	// リソース管理初期化
 	ResourceManager::CreateInstance();
 
+	// 起動時に共通SEを準備
+	if (!SoundManager::GetInstance().Init())
+	{
+		OutputDebugStringA("SoundManager: SE loading failed.\n");
+	}
+
 	// シーン管理初期化
 	SceneManager::CreateInstance();
 
@@ -118,6 +125,9 @@ void Application::Destroy(void)
 
 	// シーン管理解放
 	SceneManager::GetInstance().Destroy();
+
+	// 共通SEを解放
+	SoundManager::GetInstance().Release();
 
 	// Effekseerを終了する。
 	Effkseer_End();

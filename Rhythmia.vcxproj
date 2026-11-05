@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Manager\SoundManager.h" />
     <ClInclude Include="Src\CsvData\Chart\ChartDataLoader.h" />
     <ClInclude Include="Src\CsvData\Chart\ChartData.h" />
     <ClInclude Include="Src\Object\Notes\NotesBase.h" />
@@ -160,6 +161,7 @@
     <ClInclude Include="Src\Effect\TitleParticle.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Manager\SoundManager.cpp" />
     <ClCompile Include="Src\CsvData\Chart\ChartDataLoader.cpp" />
     <ClCompile Include="Src\Object\Notes\NotesBase.cpp" />
     <ClCompile Include="Src\Object\Lane\Lane.cpp" />

@@ -10,7 +10,7 @@ public:
 	// 配置よ担当するキーの表示名
 	void Init(int left, int top,
 		int width, int bottom, int judgeY,
-		const char* keyName);
+		const char* keyName, int laneIdx);
 
 	// 曲の時刻を使って全てのノーツを更新
 	void Update(double musicTimeSeconds);
@@ -83,6 +83,7 @@ private :
 	int width_ = 0;
 	int bottom_ = 0;
 	int judgeY_ = 0;
+	int laneIdx_ = 0;
 
 	// 現在表示している判定画像
 	int judgmentImageHandle_ = INVALID_JUDGMENT_HANDLE;

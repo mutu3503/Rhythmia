@@ -3,6 +3,7 @@
 #include "../CsvData/Chart/ChartDataLoader.h"
 #include "../Manager/InputManager.h"
 #include "../Manager/MusicManager.h"
+#include "../Manager/SoundManager.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
 #include "GameScene.h"
@@ -246,6 +247,9 @@ void GameScene::Draw(void)
 
 void GameScene::Release(void)
 {
+	// プレイ中のSEを停止
+	SoundManager::GetInstance().StopAllSE();
+
 	// ゲーム終了時に楽曲を停止
 	MusicManager::GetInstance().Stop();
 }

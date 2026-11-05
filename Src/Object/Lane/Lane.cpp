@@ -1,10 +1,11 @@
 ﻿#include <DxLib.h>
 #include <cmath>
+#include "../../Manager/SoundManager.h"
 #include "Lane.h"
 
 void Lane::Init(int left, int top, 
 	int width, int bottom, int judgeY,
-	const char* keyName)
+	const char* keyName, int laneIdx)
 {
 	// LaneManagerから受け取った配置を保存する
 	left_ = left;
@@ -13,6 +14,7 @@ void Lane::Init(int left, int top,
 	bottom_ = bottom;
 	judgeY_ = judgeY;
 	keyName_ = keyName;
+	laneIdx_ = laneIdx;
 	
 	// 前回の譜面を残さない
 	notes_.clear();
@@ -109,6 +111,8 @@ void Lane::AddHoldNotes(double hitTimeSeconds, double endTimeSeconds, int imageH
 
 void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 {
+	SoundManager& soundMng = SoundManager::GetInstance();
+
 	// 表示時間を過ぎた判定画像を消す
 	if (musicTimeSeconds >= judgmentEndSeconds_)
 	{
@@ -119,6 +123,40 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 
 	while (noteIt != notes_.end())
 	{
+		// MISSしているロングノーツは終点まで押しなおせるようにする
+		if (noteIt->IsHold() && noteIt->HasMissd())
+		{
+			// 終点に着いたらノーツを消す
+			if (musicTimeSeconds >= noteIt->GetEndTimeSeconds())
+			{
+				soundMng.StopHold(laneIdx_);
+				noteIt = notes_.erase(noteIt);
+				continue;
+			}
+
+			const bool wasHolding = noteIt->IsHolding();
+
+			// 現在のキー状態を保持状態に反映
+			noteIt->SetHolding(isKeyHeld);
+
+			if (isKeyHeld && !wasHolding)
+			{
+				// 押しなおした瞬間に長押し音を再開
+				soundMng.StartHold(laneIdx_);
+			}
+			else if(!isKeyHeld && wasHolding)
+			{
+				// 離したら長押し音を止める
+				soundMng.StopHold(laneIdx_);
+			}
+
+			// 状態変更をこのフレームの描画位置にも反映
+			noteIt->Update(musicTimeSeconds, judgeY_);
+
+			++noteIt;
+			continue;
+		}
+
 		if (noteIt->IsHolding())
 		{
 			const double endSeconds =
@@ -127,12 +165,14 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 			// 終点まで保持、または猶予内で離したら完了
 			const bool completed =
 				musicTimeSeconds >= endSeconds
-				|| (!isKeyHeld
-					&& musicTimeSeconds >=
+				|| (!isKeyHeld && musicTimeSeconds >=
 					endSeconds - HOLD_RELEASE_GRACE_SECONDS);
 
 			if (completed)
 			{
+				// 長押しが終わったら音を止める
+				soundMng.StopHold(laneIdx_);
+
 				// 長押し完了をPERFECTとして表示する
 				ShowJudgment(
 					ResourceManager::SRC::JUDGE_PERFECT,
@@ -146,13 +186,15 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 			// 終点より早くキーを離したらMISS
 			if (!isKeyHeld)
 			{
+				// 途中で離した場合も音を止める
+				soundMng.StopHold(laneIdx_);
+				noteIt->MarkMiss();
+				noteIt->Update(musicTimeSeconds, judgeY_);
+
 				ShowJudgment(
 					ResourceManager::SRC::JUDGE_MISS,
 					musicTimeSeconds
 				);
-
-				noteIt = notes_.erase(noteIt);
-				continue;
 			}
 		}
 		else
@@ -168,8 +210,35 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 					musicTimeSeconds
 				);
 
-				noteIt = notes_.erase(noteIt);
-				continue;
+				if (noteIt->IsHold())
+				{
+					// 押し逃したロングノーツも復帰可能にする
+					noteIt->MarkMiss();
+
+					// 終点を過ぎていたら削除
+					if (musicTimeSeconds >= noteIt->GetEndTimeSeconds())
+					{
+						soundMng.StopHold(laneIdx_);
+						noteIt = notes_.erase(noteIt);
+						continue;
+					}
+
+					// すでにキーを押していたらその時点から復帰
+					noteIt->SetHolding(isKeyHeld);
+
+					if (isKeyHeld)
+					{
+						soundMng.StartHold(laneIdx_);
+					}
+
+					noteIt->Update(musicTimeSeconds, judgeY_);
+				}
+				else
+				{
+					// 通常ノーツのMISSは削除
+					noteIt = notes_.erase(noteIt);
+					continue;
+				}
 			}
 		}
 
@@ -188,7 +257,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 	for (auto it = notes_.begin(); it != notes_.end(); ++it)
 	{
 		// 長押し中のノーツをもう一度押す対象にはしない
-		if (it->IsHolding())
+		if (it->IsHolding() || it->HasMissd())
 		{
 			continue;
 		}
@@ -227,10 +296,16 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 	// 通常ノーツもロングの始点も、同じ幅で判定する
 	ShowJudgment(judgment, musicTimeSeconds);
 
+	// 入力成功時に通常ノーツSEを鳴らす
+	soundMng.PlayTap();
+
 	if (targetIt->IsHold())
 	{
 		// ロングは消さずに、長押し状態へ切り替える
 		targetIt->BeginHold();
+
+		// このレーンのロングノーツSEを開始
+		soundMng.StartHold(laneIdx_);
 
 		// このフレームから始点を判定ラインに固定する
 		targetIt->Update(musicTimeSeconds, judgeY_);

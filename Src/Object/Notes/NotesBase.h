@@ -33,6 +33,22 @@ public:
 
 	void BeginHold(void) { isHolding_ = true; }
 
+	// このノーツで一度でもMISSになったか
+	bool HasMissd(void) const { return hasMissd_; }
+
+	// 長押しを中断したところを記録
+	void MarkMiss(void)
+	{
+		hasMissd_ = true;
+		isHolding_ = false;
+	}
+
+	// 押しなおし・再中断に応じて、現在の保持状態を切り替える
+	void SetHolding(bool isHolding)
+	{
+		isHolding_ = isHolding;
+	}
+
 private:
 
 	// ノーツの落下速度
@@ -55,6 +71,10 @@ private:
 	static constexpr double BODY_TOP_RATIO = 0.40;
 	static constexpr double BODY_BOTTOM_RATIO = 0.60;
 
+	// 通常の明るさと離しているロングノーツの明るさ
+	static constexpr int FULL_BRIGHTNESS = 255;
+	static constexpr int MISSED_BRIGHTNESS = 110;
+
 	// ノーツの種類
 	NOTE_TYPE type_ = NOTE_TYPE::NORMAL_NOTE;
 
@@ -68,6 +88,9 @@ private:
 
 	// 始点の入力に成功して、押し続けている状態
 	bool isHolding_ = false;
+
+	// MISSを記録済みか
+	bool hasMissd_ = false;
 
 	// 別のクラスから画像を参照
 	int imageHandle_;

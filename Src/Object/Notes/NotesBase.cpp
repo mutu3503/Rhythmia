@@ -11,9 +11,7 @@ NotesBase::NotesBase(double hitTimeSeconds, int imageHandle)
 {
 }
 
-NotesBase::NotesBase(
-	double hitTimeSeconds,
-	double endTimeSeconds,
+NotesBase::NotesBase(double hitTimeSeconds, double endTimeSeconds,
 	int imageHandle
 )
 	:
@@ -34,7 +32,7 @@ void NotesBase::Update(double musicTimeSeconds, int judgeY)
 	endY_ = judgeY
 		- (endTimeSeconds_ - musicTimeSeconds) * SCROLL_SPEED;
 
-	if (isHolding_)
+	if (isHolding_ || (IsHold() && hasMissd_))
 	{
 		// 押し始めたら始点を判定ラインに固定する
 		centerY_ = judgeY;
@@ -47,12 +45,8 @@ void NotesBase::Update(double musicTimeSeconds, int judgeY)
 	}
 }
 
-void NotesBase::Draw(
-	int laneLeft,
-	int laneWidth,
-	int laneTop,
-	int laneBottom
-) const
+void NotesBase::Draw(int laneLeft, int laneWidth, int laneTop,
+	int laneBottom) const
 {
 	if (imageHandle_ == INVALID_IMAGE_HANDLE)
 	{
@@ -101,7 +95,7 @@ void NotesBase::Draw(
 	int imageWidth = 0;
 	int imageHeight = 0;
 
-	// ロング画像の切り出しに使う元画像サイズを取得する
+	// ロングノーツ画像の切り出しに使う元画像サイズを取得する
 	if (IsHold())
 	{
 		GetGraphSize(imageHandle_, &imageWidth, &imageHeight);
@@ -113,6 +107,23 @@ void NotesBase::Draw(
 	}
 
 	SetDrawArea(clipLeft, clipTop, clipRight, clipBottom);
+
+	// 呼び出し前の明るさを保存する
+	int oldRed;
+	int oldGreen;
+	int oldBlue;
+
+	GetDrawBright(&oldRed, &oldGreen, &oldBlue);
+
+	// 離してるロングノーツだけを暗くする
+	if (IsHold() && hasMissd_ && !isHolding_)
+	{
+		SetDrawBright(
+			oldRed * MISSED_BRIGHTNESS / FULL_BRIGHTNESS,
+			oldGreen * MISSED_BRIGHTNESS / FULL_BRIGHTNESS,
+			oldBlue * MISSED_BRIGHTNESS / FULL_BRIGHTNESS
+		);
+	}
 
 	if (!IsHold())
 	{
@@ -171,6 +182,9 @@ void NotesBase::Draw(
 			imageHandle_, true
 		);
 	}
+
+	// 他のノーツや画面全体を暗くしないように明るさを戻す
+	SetDrawBright(oldRed, oldGreen, oldBlue);
 
 	// 後続の描画のため、元の範囲へ戻す
 	SetDrawArea(
