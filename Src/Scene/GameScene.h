@@ -71,6 +71,9 @@ private:
 	// 譜面の読み込み結果の表示位置
 	static constexpr int CHART_INFO_TEXT_Y = 160;
 
+	// ミリ秒を秒に変換するための定数
+	static constexpr double MILLISECONDS_PER_SECOND = 1000.0;
+
 	// 読み込んだ譜面データ
 	std::vector<ChartData> chartDataList_;
 
