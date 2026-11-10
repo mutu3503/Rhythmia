@@ -6,6 +6,7 @@
 #include "../Manager/SoundManager.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/ResourceManager.h"
+#include "../Manager/TimingSettings.h"
 #include "GameScene.h"
 
 GameScene::GameScene(void)
@@ -55,6 +56,10 @@ void GameScene::Init(void)
 		);
 	}
 
+	// 曲ごとの調整値とPCの環境補正を合計
+	const double chartoffsetSeconds =
+		song_.offsetSeconds + TimingSettings::LoadSeconds();
+
 	// 読み込んだ譜面を各レーンに配置
 	if (isChartLoaded_)
 	{
@@ -76,7 +81,7 @@ void GameScene::Init(void)
 		isChartLoaded_ = laneManager_.SetChart(
 			chartDataList_,
 			song_.bpm,
-			song_.offsetSeconds,
+			chartoffsetSeconds,
 			normalImageHandle,
 			holdImageHandle
 		);
@@ -87,6 +92,13 @@ void GameScene::Init(void)
 	{
 		laneManager_.Update(musicTime_, false);
 	}
+
+	// 曲を始めるたびに終了状態をリセットし、画像を先に読み込む
+	hasChartEnded_ = false;
+
+	finishLogoHandle_ = ResourceManager::GetInstance().Load(
+		ResourceManager::SRC::CLEAR_LOGO
+	).handleId_;
 }
 
 void GameScene::Update(void)
@@ -158,6 +170,14 @@ void GameScene::Update(void)
 	{
 		// true：位置更新に加えて、入力・MISS判定も行う
 		laneManager_.Update(musicTime_, true);
+
+		// 最後のノーツを処理してから、FINISH表示までの計測を始める
+		if (!hasChartEnded_
+			&& musicTime_ >= laneManager_.GetChartEndSeconds())
+		{
+			hasChartEnded_ = true;
+			chartEndedAt_ = std::chrono::steady_clock::now();
+		}
 	}
 }
 
@@ -242,6 +262,36 @@ void GameScene::Draw(void)
 			"譜面の読み込みに失敗しました",
 			GetColor(ERROR_TEXT_R, ERROR_TEXT_G, ERROR_TEXT_B)
 		);
+	}
+
+	if (hasChartEnded_ && finishLogoHandle_ != INVALID_FINISH_LOGO)
+	{
+		// 曲が再生を終えても、この待ち時間は進む
+		const double elapsedSeconds = std::chrono::duration<double>(
+			std::chrono::steady_clock::now() - chartEndedAt_
+		).count();
+
+		if (elapsedSeconds >= FINISH_DELAY_SECONDS)
+		{
+			int imageWidth = 0;
+			int imageHeight = 0;
+
+			// 元画像の縦横比を保ち、画面中央へ配置する
+			if (GetGraphSize(finishLogoHandle_, &imageWidth, &imageHeight) == 0
+				&& imageWidth > 0 && imageHeight > 0)
+			{
+				const int height = FINISH_LOGO_WIDTH * imageHeight / imageWidth;
+				const int left = (Application::SCREEN_SIZE_X - FINISH_LOGO_WIDTH) / 2;
+				const int top = (Application::SCREEN_SIZE_Y - height) / 2;
+
+				DrawExtendGraph(
+					left, top,
+					left + FINISH_LOGO_WIDTH, top + height,
+					finishLogoHandle_,
+					true
+				);
+			}
+		}
 	}
 }
 

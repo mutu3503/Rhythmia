@@ -138,6 +138,7 @@ void TitleScene::Update(void)
 				SceneManager::SCENE_ID::SONG_SELECT);
 			break;
 		case TitleScene::MenuType::Option:
+			scnMng_.ChangeScene(SceneManager::SCENE_ID::SETTING);
 			break;
 		case TitleScene::MenuType::Exit:
 			// 終了確認画面を表示する

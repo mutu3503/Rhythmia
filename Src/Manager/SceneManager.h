@@ -26,6 +26,8 @@ public:
 		TITLE,
 		SONG_SELECT,
 		GAME,
+		TIMING,
+		SETTING,
 	};
 
 	// インスタンスの生成
@@ -50,7 +52,7 @@ public:
 	void Destroy(void);
 
 	// 状態遷移
-	void ChangeScene(SCENE_ID nextId);
+	void ChangeScene(SCENE_ID nextId, double fadeOutSeconds = 0.0);
 
 	// 選んだ曲を保存
 	void SetSelectedSong(const SongData& song);

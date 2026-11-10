@@ -63,6 +63,10 @@ void ResourceManager::Init(void)
 	// MISSの判定画像
 	res = new RES(RES_T::IMG, PATH_IMG + "Game/Note_judgment/Miss_Logo.png");
 	resourcesMap_.emplace(SRC::JUDGE_MISS, res);
+
+	// FINISH画像
+	res = new RES(RES_T::IMG, PATH_IMG + "GameClear/Clear_Logo.png");
+	resourcesMap_.emplace(SRC::CLEAR_LOGO, res);
 }
 
 void ResourceManager::Release(void)

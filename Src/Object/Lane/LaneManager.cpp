@@ -66,6 +66,9 @@ bool LaneManager::SetChart(const std::vector<ChartData>& chartDataList,
 	// 前回のノーツを消す
 	Init();
 
+	// 前の曲の終了時刻を残さない
+	chartEndSeconds_ = MUSIC_START_SECONDS;
+
 	// BPMが正の値でなければ秒に変換しない
 	if (bpm <= 0
 		|| chartDataList.empty()
@@ -138,24 +141,29 @@ bool LaneManager::SetChart(const std::vector<ChartData>& chartDataList,
 		const double hitTimeSeconds =
 			firstBeatSeconds + data.beat * secondsPerBeat;
 
-		if (data.type == NOTE_TYPE::HOLD_NOTE)
-		{
-			// 終点にも、同じBPMと調整値を適用する
-			const double endTimeSeconds =
-				firstBeatSeconds + data.endBeat * secondsPerBeat;
+		// ロングは終了拍、通常ノーツは判定時刻を終了時刻とする。
+		const bool isHold = data.type == NOTE_TYPE::HOLD_NOTE;
+		const double noteEndSeconds = isHold
+			? firstBeatSeconds + data.endBeat * secondsPerBeat
+			: hitTimeSeconds;
 
+		if (isHold)
+		{
 			lanes_[data.lane].AddHoldNotes(
 				hitTimeSeconds,
-				endTimeSeconds,
+				noteEndSeconds,
 				holdImageHandle
 			);
 		}
 		else
 		{
-			lanes_[data.lane].AddNotes(
-				hitTimeSeconds,
-				normalImageHandle
-			);
+			lanes_[data.lane].AddNotes(hitTimeSeconds, normalImageHandle);
+		}
+
+		// 最も遅い終了時刻を、FINISH表示の基準として保存する。
+		if (noteEndSeconds > chartEndSeconds_)
+		{
+			chartEndSeconds_ = noteEndSeconds;
 		}
 	}
 

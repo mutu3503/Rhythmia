@@ -18,6 +18,7 @@ public:
 		JUDGE_GREAT,
 		JUDGE_GOOD,
 		JUDGE_MISS,
+		CLEAR_LOGO,
 	};
 
 	// 明示的にインスタンスを生成する

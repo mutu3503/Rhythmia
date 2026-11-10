@@ -6,6 +6,8 @@
 #include "../Scene/TitleScene.h"
 #include "../Scene/SongSelectScene.h"
 #include "../Scene/SceneBase.h"
+#include "../Scene/TimingScene.h"
+#include "../Scene/SettingScene.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
 
@@ -180,18 +182,23 @@ void SceneManager::Destroy(void)
 
 }
 
-void SceneManager::ChangeScene(SCENE_ID nextId)
+void SceneManager::ChangeScene(SCENE_ID nextId, double fadeOutSeconds)
 {
+	// ロード表示時間
+	constexpr int DEFAUlT_LAODING_FRAMES = 60;
+	constexpr int NO_LOADING_FRAMES = 0;
 
 	// フェード処理が終わってからシーンを変える場合もあるため、
 	// 遷移先シーンをメンバ変数に保持
 	waitSceneId_ = nextId;
 
 	// ロード表示時間
-	loadingCount_ = 60;
+	loadingCount_ = fadeOutSeconds > 0.0
+		? NO_LOADING_FRAMES
+		: DEFAUlT_LAODING_FRAMES;
 
 	// フェードアウト(暗転)を開始する
-	fader_->SetFade(Fader::STATE::FADE_OUT);
+	fader_->SetFade(Fader::STATE::FADE_OUT, fadeOutSeconds);
 	isSceneChanging_ = true;
 
 }
@@ -275,6 +282,12 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 		break;
 	case SCENE_ID::GAME:
 		scene_ = new GameScene();
+		break;
+	case SCENE_ID::SETTING:
+		scene_ = new SettingScene();
+		break;
+	case SCENE_ID::TIMING:
+		scene_ = new TimingScene();
 		break;
 	default:
 		break;

@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include <chrono>
 #include "../Object/Lane/LaneManager.h"
 #include "../CsvData/Chart/ChartData.h"
 #include "../CsvData/Song/SongData.h"
@@ -62,6 +63,15 @@ private:
 	static constexpr int GUIDE_TEXT_G = 200;
 	static constexpr int GUIDE_TEXT_B = 200;
 
+	// 譜面終了からFINISHを表示するまでの待ち時間
+	static constexpr double FINISH_DELAY_SECONDS = 3.0;
+
+	// FINISH画像の表示幅、高さは画像の比率から計算
+	static constexpr int FINISH_LOGO_WIDTH = 840;
+
+	// 画像ハンドルの無効値
+	static constexpr int INVALID_FINISH_LOGO = -1;
+
 	// 楽曲を再生するまでの時間
 	static constexpr double MUSIC_START_DELAY_SECONDS = 2.0;
 
@@ -77,11 +87,18 @@ private:
 	// 読み込んだ譜面データ
 	std::vector<ChartData> chartDataList_;
 
+	// 曲が止まっても待ち時間が計れるように、前回の更新時刻を保存する
+	std::chrono::steady_clock::time_point chartEndedAt_{};
+
 	// 選んだ曲
 	SongData song_{};
 
 	// ノーツの移動と入力判定で共通して使用する楽曲の時刻
 	double musicTime_ = MUSIC_START_SECONDS;
+
+	int finishLogoHandle_ = INVALID_FINISH_LOGO;
+
+	bool hasChartEnded_ = false;
 
 	// 再生開始処理を行ったか
 	bool hasStarted_ = false;

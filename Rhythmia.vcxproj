@@ -132,6 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Scene\ResultScene.h" />
+    <ClInclude Include="Src\Scene\SettingScene.h" />
     <ClInclude Include="Src\Manager\SoundManager.h" />
     <ClInclude Include="Src\CsvData\Chart\ChartDataLoader.h" />
     <ClInclude Include="Src\CsvData\Chart\ChartData.h" />
@@ -160,8 +162,11 @@
     <ClInclude Include="Src\Scene\TitleScene.h" />
     <ClInclude Include="Src\Effect\TitleParticle.h" />
     <ClInclude Include="Src\Manager\TimingSettings.h" />
+    <ClInclude Include="Src\Scene\TimingScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Scene\ResultScene.cpp" />
+    <ClCompile Include="Src\Scene\SettingScene.cpp" />
     <ClCompile Include="Src\Manager\SoundManager.cpp" />
     <ClCompile Include="Src\CsvData\Chart\ChartDataLoader.cpp" />
     <ClCompile Include="Src\Object\Notes\NotesBase.cpp" />
@@ -188,6 +193,7 @@
     <ClCompile Include="Src\Scene\TitleScene.cpp" />
     <ClCompile Include="Src\Effect\TitleParticle.cpp" />
     <ClCompile Include="Src\Manager\TimingSettings.cpp" />
+    <ClCompile Include="Src\Scene\TimingScene.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

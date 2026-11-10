@@ -20,6 +20,9 @@ public:
 		int holdImageHandle
 	);
 
+	// 最後の通常ノーツまたはロングノーツの終了時刻を取得する
+	double GetChartEndSeconds(void) const { return chartEndSeconds_; }
+
 private:
 
 	// レーン数
@@ -47,11 +50,15 @@ private:
 	// 画像ハンドルの無効値
 	static constexpr int INVALID_IMAGE_HANDLE = -1;
 
+	// BPMとタイミング補正を適応したあとの譜面終了時刻
+	double chartEndSeconds_ = MUSIC_START_SECONDS;
+
 	// 担当キー表示名
 	const char* keyNames_[LANE_COUNT] = { "D","F","J","K" };
 
 	// 各レーンで使用するキー
-	const int laneKeys_[LANE_COUNT] = {
+	const int laneKeys_[LANE_COUNT] =
+	{
 		KEY_INPUT_D,
 		KEY_INPUT_F,
 		KEY_INPUT_J,

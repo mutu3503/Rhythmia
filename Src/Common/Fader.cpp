@@ -25,11 +25,14 @@ bool Fader::IsEnd(void) const
 	return isEnd_;
 }
 
-void Fader::SetFade(STATE state)
+void Fader::SetFade(STATE state, double fadeOutSeconds)
 {
 	state_ = state;
+	fadeOutSeconds_ = fadeOutSeconds;
+
 	if (state_ != STATE::NONE)
 	{
+		fadeStartedAt_ = std::chrono::steady_clock::now();
 		isPreEnd_ = false;
 		isEnd_ = false;
 	}
@@ -44,6 +47,30 @@ void Fader::Update(void)
 
 	if (isEnd_)
 	{
+		return;
+	}
+
+	// 秒数を指定された暗転はフレーム数ではなく経過時間で進める
+	if (state_ == STATE::FADE_OUT && fadeOutSeconds_ > 0.0)
+	{
+		const double elapsedSeconds = std::chrono::duration<double>(
+			std::chrono::steady_clock::now() - fadeStartedAt_
+		).count();
+
+		if (elapsedSeconds >= fadeOutSeconds_)
+		{
+			alpha_ = OPAQUE_ALPHA;
+
+			// 真っ黒なフレームを一度描いてから、切り替えを許可する
+			isEnd_ = isPreEnd_;
+			isPreEnd_ = true;
+		}
+		else
+		{
+			const double progress = elapsedSeconds / fadeOutSeconds_;
+			alpha_ = static_cast<float>(OPAQUE_ALPHA * progress);
+		}
+
 		return;
 	}
 

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <chrono>
 
 class Fader
 {
@@ -28,7 +29,7 @@ public:
 	bool IsEnd(void) const;
 
 	// 指定フェードを開始する
-	void SetFade(STATE state);
+	void SetFade(STATE state, double fadeOutSeconds = 0.0);
 
 	// 初期化
 	void Init(void);
@@ -40,6 +41,13 @@ public:
 	void Draw(void);
 
 private:
+
+	// 完全に暗くなった時の不透明度
+	static constexpr float OPAQUE_ALPHA = 255.0f;
+
+	// 秒数を指定した暗転の長さと暗転を始めた時刻
+	double fadeOutSeconds_ = 0.0;
+	std::chrono::steady_clock::time_point fadeStartedAt_{};
 
 	// 状態
 	STATE state_;
