@@ -2,6 +2,7 @@
 #include <DxLib.h>
 #include <vector>
 #include "../../CsvData/Chart/ChartData.h"
+#include "../../Manager/ScoreManager.h"
 #include "Lane.h"
 
 class LaneManager
@@ -23,7 +24,16 @@ public:
 	// 最後の通常ノーツまたはロングノーツの終了時刻を取得する
 	double GetChartEndSeconds(void) const { return chartEndSeconds_; }
 
+	// プレイの集計結果をコピー
+	PlayResult GetPlayResult(void) const
+	{
+		return scoreManager_.GetResult();
+	}
+
 private:
+
+	// この譜面のスコアと判定定数を管理
+	ScoreManager scoreManager_;
 
 	// レーン数
 	static constexpr int LANE_COUNT = 4;
@@ -50,6 +60,9 @@ private:
 	// 画像ハンドルの無効値
 	static constexpr int INVALID_IMAGE_HANDLE = -1;
 
+	// 1フレーム分の判定を受け取る
+	std::vector<JUDGMENT> finishedJudgments_;
+
 	// BPMとタイミング補正を適応したあとの譜面終了時刻
 	double chartEndSeconds_ = MUSIC_START_SECONDS;
 
@@ -66,6 +79,5 @@ private:
 	};
 
 	Lane lanes_[LANE_COUNT];
-
 };
 

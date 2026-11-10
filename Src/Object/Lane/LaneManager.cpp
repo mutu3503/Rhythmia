@@ -26,6 +26,9 @@ void LaneManager::Update(double musicTimeSeconds, bool enableJudgment)
 	InputManager& inputMng =
 		InputManager::GetInstance();
 
+	// 前のフレームで集計した判定を残さない
+	finishedJudgments_.clear();
+
 	for (int laneIdx = 0; laneIdx < LANE_COUNT; ++laneIdx)
 	{
 		// 描画位置を曲の現在時刻から計算
@@ -45,9 +48,16 @@ void LaneManager::Update(double musicTimeSeconds, bool enableJudgment)
 			lanes_[laneIdx].Judge(
 				musicTimeSeconds,
 				isKeyPressed,
-				isKeyHeld
+				isKeyHeld,
+				finishedJudgments_
 			);
 		}
+	}
+
+	// 全レーンの判定を1つずつ集計
+	for (JUDGMENT judgment : finishedJudgments_)
+	{
+		scoreManager_.AddJudgment(judgment);
 	}
 }
 
@@ -65,6 +75,9 @@ bool LaneManager::SetChart(const std::vector<ChartData>& chartDataList,
 {
 	// 前回のノーツを消す
 	Init();
+
+	// 前のプレイの集計を消す
+	scoreManager_.Reset();
 
 	// 前の曲の終了時刻を残さない
 	chartEndSeconds_ = MUSIC_START_SECONDS;
