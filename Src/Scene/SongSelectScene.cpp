@@ -238,6 +238,8 @@ void SongSelectScene::Draw(void)
 
 void SongSelectScene::Release(void)
 {
+	MusicManager::GetInstance().Stop();
+
 	songs_.clear();
 }
 

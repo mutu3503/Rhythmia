@@ -84,6 +84,12 @@ private:
 	// ミリ秒を秒に変換するための定数
 	static constexpr double MILLISECONDS_PER_SECOND = 1000.0;
 
+	// クリアを表示してから、暗転を始めるまでの時間
+	static constexpr double FINISH_HOLD_SECONDS = 1.0;
+
+	// リザルトに移る時の暗転時間
+	static constexpr double RESULT_FADE_OUT_SECONDS = 2.0;
+
 	// 読み込んだ譜面データ
 	std::vector<ChartData> chartDataList_;
 

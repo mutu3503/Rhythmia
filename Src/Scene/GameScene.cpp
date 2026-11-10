@@ -112,6 +112,24 @@ void GameScene::Update(void)
 		return;
 	}
 
+	// 譜面終了後は、曲の経過時間を確認
+	if (hasChartEnded_)
+	{
+		const double elapsedSeconds = std::chrono::duration<double>(
+			std::chrono::steady_clock::now() - chartEndedAt_
+		).count();
+
+		// 3秒後にFINISHが出るのでさらに1秒見せる
+		if (elapsedSeconds >= FINISH_DELAY_SECONDS + FINISH_HOLD_SECONDS)
+		{
+			scnMng_.ChangeScene(
+				SceneManager::SCENE_ID::RESULT,
+				RESULT_FADE_OUT_SECONDS
+			);
+			return;
+		}
+	}
+
 	// 楽曲が読み込めない場合は再生しない
 	if (!isMusicLoaded_)
 	{

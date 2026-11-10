@@ -3,6 +3,27 @@
 #include "../../Manager/SoundManager.h"
 #include "Lane.h"
 
+namespace
+{
+	// ゲームの判定を、対応する表示画像へ変換する。
+	ResourceManager::SRC GetJudgmentImage(JUDGMENT judgment)
+	{
+		switch (judgment)
+		{
+		case JUDGMENT::PERFECT:
+			return ResourceManager::SRC::JUDGE_PERFECT;
+		case JUDGMENT::GREAT:
+			return ResourceManager::SRC::JUDGE_GREAT;
+		case JUDGMENT::GOOD:
+			return ResourceManager::SRC::JUDGE_GOOD;
+		case JUDGMENT::MISS:
+			return ResourceManager::SRC::JUDGE_MISS;
+		}
+
+		return ResourceManager::SRC::JUDGE_MISS;
+	}
+}
+
 void Lane::Init(int left, int top, 
 	int width, int bottom, int judgeY,
 	const char* keyName, int laneIdx)
@@ -109,7 +130,7 @@ void Lane::AddHoldNotes(double hitTimeSeconds, double endTimeSeconds, int imageH
 	);
 }
 
-void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
+void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld, std::vector<JUDGMENT>& finishedJudgment)
 {
 	SoundManager& soundMng = SoundManager::GetInstance();
 
@@ -173,11 +194,11 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 				// 長押しが終わったら音を止める
 				soundMng.StopHold(laneIdx_);
 
-				// 長押し完了をPERFECTとして表示する
-				ShowJudgment(
-					ResourceManager::SRC::JUDGE_PERFECT,
-					musicTimeSeconds
-				);
+				// 始点の判定をロングノーツ1本分として確定
+				const JUDGMENT finalJudgment = noteIt->GetStartJudgment();
+
+				ShowJudgment(GetJudgmentImage(finalJudgment), musicTimeSeconds);
+				finishedJudgment.push_back(finalJudgment);
 
 				noteIt = notes_.erase(noteIt);
 				continue;
@@ -189,6 +210,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 				// 途中で離した場合も音を止める
 				soundMng.StopHold(laneIdx_);
 				noteIt->MarkMiss();
+				finishedJudgment.push_back(JUDGMENT::MISS);
 				noteIt->Update(musicTimeSeconds, judgeY_);
 
 				ShowJudgment(
@@ -205,6 +227,8 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 
 			if (lateSeconds > GOOD_WINDOW_SECONDS)
 			{
+				finishedJudgment.push_back(JUDGMENT::MISS);
+
 				ShowJudgment(
 					ResourceManager::SRC::JUDGE_MISS,
 					musicTimeSeconds
@@ -281,20 +305,19 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 		return;
 	}
 
-	ResourceManager::SRC judgment =
-		ResourceManager::SRC::JUDGE_GOOD;
+	JUDGMENT judgment = JUDGMENT::GOOD;
 
 	if (closestDifference <= PERFECT_WINDOW_SECONDS)
 	{
-		judgment = ResourceManager::SRC::JUDGE_PERFECT;
+		judgment = JUDGMENT::PERFECT;
 	}
 	else if (closestDifference <= GREAT_WINDOW_SECONDS)
 	{
-		judgment = ResourceManager::SRC::JUDGE_GREAT;
+		judgment = JUDGMENT::GREAT;
 	}
 
 	// 通常ノーツもロングの始点も、同じ幅で判定する
-	ShowJudgment(judgment, musicTimeSeconds);
+	ShowJudgment(GetJudgmentImage(judgment), musicTimeSeconds);
 
 	// 入力成功時に通常ノーツSEを鳴らす
 	soundMng.PlayTap();
@@ -302,7 +325,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 	if (targetIt->IsHold())
 	{
 		// ロングは消さずに、長押し状態へ切り替える
-		targetIt->BeginHold();
+		targetIt->BeginHold(judgment);
 
 		// このレーンのロングノーツSEを開始
 		soundMng.StartHold(laneIdx_);
@@ -312,6 +335,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld)
 	}
 	else
 	{
+		finishedJudgment.push_back(judgment);
 		// 通常ノーツは成功したら消す
 		notes_.erase(targetIt);
 	}

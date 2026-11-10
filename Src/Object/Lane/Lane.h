@@ -26,7 +26,7 @@ public:
 
 	// 押した瞬間の入力と曲の時刻を使いノーツの判定をする
 	void Judge(double musicTimeSeconds, bool isKeyPressed,
-		bool isKeyHeld);
+		bool isKeyHeld, std::vector<JUDGMENT>& finishedJudgment);
 
 private :
 

@@ -28,6 +28,7 @@ public:
 		GAME,
 		TIMING,
 		SETTING,
+		RESULT,
 	};
 
 	// インスタンスの生成

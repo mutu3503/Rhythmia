@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../../CsvData/Chart/ChartData.h"
+#include "../../Common/PlayResult.h"
 
 class NotesBase
 {
@@ -31,7 +32,11 @@ public:
 	bool IsHold(void) const { return type_ == NOTE_TYPE::HOLD_NOTE; }
 	bool IsHolding(void) const { return isHolding_; }
 
-	void BeginHold(void) { isHolding_ = true; }
+	void BeginHold(JUDGMENT startJudgment)
+	{
+		startJudgment_ = startJudgment;
+		isHolding_ = true; 
+	}
 
 	// このノーツで一度でもMISSになったか
 	bool HasMissd(void) const { return hasMissd_; }
@@ -47,6 +52,12 @@ public:
 	void SetHolding(bool isHolding)
 	{
 		isHolding_ = isHolding;
+	}
+
+	// ロングノーツの始点で確定した判定を返す
+	JUDGMENT GetStartJudgment(void) const
+	{
+		return startJudgment_;
 	}
 
 private:
@@ -74,6 +85,9 @@ private:
 	// 通常の明るさと離しているロングノーツの明るさ
 	static constexpr int FULL_BRIGHTNESS = 255;
 	static constexpr int MISSED_BRIGHTNESS = 110;
+
+	// 始点を押したときの判定
+	JUDGMENT startJudgment_ = JUDGMENT::MISS;
 
 	// ノーツの種類
 	NOTE_TYPE type_ = NOTE_TYPE::NORMAL_NOTE;

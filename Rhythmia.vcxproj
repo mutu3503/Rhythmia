@@ -132,6 +132,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Manager\ScoreManager.h" />
+    <ClInclude Include="Src\Common\PlayResult.h" />
     <ClInclude Include="Src\Scene\ResultScene.h" />
     <ClInclude Include="Src\Scene\SettingScene.h" />
     <ClInclude Include="Src\Manager\SoundManager.h" />
@@ -165,6 +167,8 @@
     <ClInclude Include="Src\Scene\TimingScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Manager\ScoreManager.cpp" />
+    <ClCompile Include="Src\Common\PlayResult.cpp" />
     <ClCompile Include="Src\Scene\ResultScene.cpp" />
     <ClCompile Include="Src\Scene\SettingScene.cpp" />
     <ClCompile Include="Src\Manager\SoundManager.cpp" />

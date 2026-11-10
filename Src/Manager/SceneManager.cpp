@@ -8,6 +8,7 @@
 #include "../Scene/SceneBase.h"
 #include "../Scene/TimingScene.h"
 #include "../Scene/SettingScene.h"
+#include "../Scene/ResultScene.h"
 #include "ResourceManager.h"
 #include "SceneManager.h"
 
@@ -288,6 +289,9 @@ void SceneManager::DoChangeScene(SCENE_ID sceneId)
 		break;
 	case SCENE_ID::TIMING:
 		scene_ = new TimingScene();
+		break;
+	case SCENE_ID::RESULT:
+		scene_ = new ResultScene();
 		break;
 	default:
 		break;
