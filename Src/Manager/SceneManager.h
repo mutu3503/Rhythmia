@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <chrono>
 #include <DxLib.h>
+#include "../Common/PlayResult.h"
 #include "../CsvData/Song/SongData.h"
 
 class SceneBase;
@@ -61,6 +62,12 @@ public:
 	// 選んだ曲を取得
 	const SongData& GetSelectedSong(void) const;
 
+	// リザルトに渡すためプレイ結果を保持
+	void SetPlayResult(const PlayResult& result);
+
+	// 保持しているプレイ結果を取得
+	const PlayResult& GetPlayResult(void) const;
+
 	// シーンIDの取得
 	SCENE_ID GetSceneID(void);
 
@@ -74,6 +81,9 @@ private:
 
 	// ゲームで使用する曲
 	SongData selectedSong_{};
+
+	// リザルト結果をコピーして持つ
+	PlayResult playResult_{};
 
 	// 静的インスタンス
 	static SceneManager* instance_;

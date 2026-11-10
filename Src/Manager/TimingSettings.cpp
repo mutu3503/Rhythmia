@@ -1,6 +1,7 @@
 ﻿#include <Windows.h>
 #include <stdexcept>
 #include <string>
+#include "PlayerSettingsFile.h"
 #include "TimingSettings.h"
 
 namespace
@@ -13,46 +14,12 @@ namespace
 
 	// 補正値を文字列として読み込むバッファの長さ
 	constexpr int OFFSET_TEXT_CAPACITY = 32;
-
-	std::wstring GetSettingsPath(bool createFolder)
-	{
-		// Windowsユーザー専用の保存先を取得する
-		const DWORD capacity =
-			GetEnvironmentVariableW(L"LOCALAPPDATA", nullptr, 0);
-
-		if (capacity == 0)
-		{
-			return {};
-		}
-
-		std::wstring folder(capacity, L'\0');
-		const DWORD length = GetEnvironmentVariableW(
-			L"LOCALAPPDATA", &folder[0], capacity
-		);
-
-		if (length == 0 || length >= capacity)
-		{
-			return {};
-		}
-
-		folder.resize(length);
-		folder += APP_FOLDER;
-
-		// 保存するときだけフォルダを作る、作成済みならそのまま使う
-		if (createFolder && !CreateDirectoryW(folder.c_str(), nullptr)
-			&& GetLastError() != ERROR_ALREADY_EXISTS)
-		{
-			return {};
-		}
-
-		return folder + SETTINGS_FILE;
-	}
 }
 
 int TimingSettings::LoadMilliseconds()
 {
 	// 読み込む時だけは保存先フォルダを作らない
-	const std::wstring path = GetSettingsPath(false);
+	const std::wstring path = PlayerSettingsFile::GetPath(false);
 
 	if (path.empty())
 	{
@@ -96,7 +63,7 @@ int TimingSettings::LoadMilliseconds()
 
 bool TimingSettings::SaveMilliseconds(int milliseconds)
 {
-	const std::wstring path = GetSettingsPath(true);
+	const std::wstring path = PlayerSettingsFile::GetPath(true);
 
 	if (path.empty())
 	{

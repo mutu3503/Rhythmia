@@ -16,8 +16,14 @@ private:
 	enum class MenuItem
 	{
 		Timing,
-		Back
+		NoteSpeed,
+		Back,
+		Count
 	};
+
+	// 編集中の速度
+	int noteSpeedPercent_ = 0;
+	const char* speedStatusText_ = "";
 
 	// 画面を開いたときはタイミング調整を選択
 	MenuItem selectedItem_ = MenuItem::Timing;

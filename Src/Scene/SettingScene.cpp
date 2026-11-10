@@ -2,6 +2,7 @@
 #include "../Application.h"
 #include "../Manager/InputManager.h"
 #include "../Manager/SceneManager.h"
+#include "../Manager/NoteSpeedSettings.h"
 #include "SettingScene.h"
 
 namespace
@@ -28,6 +29,10 @@ void SettingScene::Init(void)
 {
 	selectedItem_ = MenuItem::Timing;
 
+	// 設定を開いたときは前回保存した速度を表示
+	noteSpeedPercent_ = NoteSpeedSettings::LoadPercent();
+	speedStatusText_ = "";
+
 	// この画面で使うキーを入力管理を登録
 	auto& input = InputManager::GetInstance();
 	const int keys[] =
@@ -36,6 +41,8 @@ void SettingScene::Init(void)
 		KEY_INPUT_DOWN,
 		KEY_INPUT_RETURN,
 		KEY_INPUT_BACK,
+		KEY_INPUT_LEFT,
+		KEY_INPUT_RIGHT,
 	};
 
 	for (int key : keys)

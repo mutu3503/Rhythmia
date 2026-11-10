@@ -229,6 +229,17 @@ const SongData& SceneManager::GetSelectedSong(void) const
 	return selectedSong_;
 }
 
+void SceneManager::SetPlayResult(const PlayResult& result)
+{
+	// ゲームシーンが持っている結果を値としてコピー
+	playResult_ = result;
+}
+
+const PlayResult& SceneManager::GetPlayResult(void) const
+{
+	return playResult_;
+}
+
 SceneManager::SceneManager(void)
 {
 

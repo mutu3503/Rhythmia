@@ -122,6 +122,9 @@ void GameScene::Update(void)
 		// 3秒後にFINISHが出るのでさらに1秒見せる
 		if (elapsedSeconds >= FINISH_DELAY_SECONDS + FINISH_HOLD_SECONDS)
 		{
+			// 集計済みの結果を渡してリザルト画面に遷移
+			scnMng_.SetPlayResult(laneManager_.GetPlayResult());
+
 			scnMng_.ChangeScene(
 				SceneManager::SCENE_ID::RESULT,
 				RESULT_FADE_OUT_SECONDS
