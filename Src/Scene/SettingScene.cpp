@@ -3,6 +3,7 @@
 #include "../Manager/InputManager.h"
 #include "../Manager/SceneManager.h"
 #include "../Manager/NoteSpeedSettings.h"
+#include "../Manager/ResourceManager.h"
 #include "SettingScene.h"
 
 namespace
@@ -12,8 +13,10 @@ namespace
 	constexpr int TEXT_LEFT = 100;
 	constexpr int TITLE_Y = 100;
 	constexpr int TIMING_ITEM_Y = 180;
-	constexpr int BACK_ITEM_Y = 230;
-	constexpr int GUIDE_Y = 310;
+	constexpr int SPEED_ITEM_Y = 230;
+	constexpr int BACK_ITEM_Y = 280;
+	constexpr int GUIDE_Y = 360;
+	constexpr int STATUS_Y = 410;
 
 	// 背景色と文字色（RGB、各0～255）。
 	constexpr int BACKGROUND_R = 15;
@@ -31,6 +34,14 @@ void SettingScene::Init(void)
 
 	// 設定を開いたときは前回保存した速度を表示
 	noteSpeedPercent_ = NoteSpeedSettings::LoadPercent();
+
+	// プレイ画面と同じ通常ノーツを使う
+	const int noteImageHandle = resMng_.Load(
+		ResourceManager::SRC::NORMAL_NOTES
+	).handleId_;
+
+	noteSpeedPreview_.Init(noteImageHandle);
+
 	speedStatusText_ = "";
 
 	// この画面で使うキーを入力管理を登録
@@ -39,10 +50,10 @@ void SettingScene::Init(void)
 	{
 		KEY_INPUT_UP,
 		KEY_INPUT_DOWN,
-		KEY_INPUT_RETURN,
-		KEY_INPUT_BACK,
 		KEY_INPUT_LEFT,
 		KEY_INPUT_RIGHT,
+		KEY_INPUT_RETURN,
+		KEY_INPUT_BACK,
 	};
 
 	for (int key : keys)
@@ -62,22 +73,65 @@ void SettingScene::Update(void)
 		return;
 	}
 
-	// 上下キーでメニュー項目を選択
-	if (input.IsTrgDown(KEY_INPUT_UP) || input.IsTrgDown(KEY_INPUT_DOWN))
+	// 上下キーで項目を選ぶ
+	const int itemCount = static_cast<int>(MenuItem::Count);
+	int itemIdx = static_cast<int>(selectedItem_);
+
+	if (input.IsTrgDown(KEY_INPUT_UP))
 	{
-		selectedItem_ = selectedItem_ == MenuItem::Timing
-			? MenuItem::Back
-			: MenuItem::Timing;
+		itemIdx = (itemIdx + itemCount - 1) % itemCount;
+	}
+	else if(input.IsTrgDown(KEY_INPUT_DOWN))
+	{
+		itemIdx = (itemIdx + 1) % itemCount;
+	}
+
+	selectedItem_ = static_cast<MenuItem>(itemIdx);
+
+	if (selectedItem_ == MenuItem::NoteSpeed)
+	{
+		// 速度の項目を選んでいるときだけ左右キーで変更
+		const int step = NoteSpeedSettings::STEP_PERCENT;
+
+		if (input.IsTrgDown(KEY_INPUT_LEFT))
+		{
+			noteSpeedPercent_ = NoteSpeedSettings::ClampPercent(
+				noteSpeedPercent_ - step
+			);
+			speedStatusText_ = "";
+		}
+		else if (input.IsTrgDown(KEY_INPUT_RIGHT))
+		{
+			noteSpeedPercent_ = NoteSpeedSettings::ClampPercent(
+				noteSpeedPercent_ + step
+			);
+			speedStatusText_ = "";
+		}
 	}
 
 	// Enterキーで選択した項目を実行
-	if (input.IsTrgDown(KEY_INPUT_RETURN))
+	if (!input.IsTrgDown(KEY_INPUT_RETURN))
 	{
-		const auto nextScene = selectedItem_ == MenuItem::Timing
-			? SceneManager::SCENE_ID::TIMING
-			: SceneManager::SCENE_ID::TITLE;
+		return;
+	}
 
-		scnMng_.ChangeScene(nextScene);
+	switch (selectedItem_)
+	{
+	case SettingScene::MenuItem::Timing:
+		scnMng_.ChangeScene(SceneManager::SCENE_ID::TIMING);
+		break;
+	case SettingScene::MenuItem::NoteSpeed:
+		speedStatusText_ = NoteSpeedSettings::SavePercent(noteSpeedPercent_)
+			? "ノーツ速度を保存しました"
+			: "ノーツ速度を保存できませんでした";
+		break;
+	case SettingScene::MenuItem::Back:
+		scnMng_.ChangeScene(SceneManager::SCENE_ID::TITLE);
+		break;
+	case SettingScene::MenuItem::Count:
+		break;
+	default:
+		break;
 	}
 }
 
@@ -98,6 +152,8 @@ void SettingScene::Draw(void)
 
 	// 選択中の項目は＞と色を変えて表示する
 	const bool timingSelected = selectedItem_ == MenuItem::Timing;
+	const bool speedSelected = selectedItem_ == MenuItem::NoteSpeed;
+	const bool backSelected = selectedItem_ == MenuItem::Back;
 
 	DrawString(
 		TEXT_LEFT, TIMING_ITEM_Y,
@@ -105,16 +161,31 @@ void SettingScene::Draw(void)
 		timingSelected ? selectedColor : normalColor
 	);
 
+	DrawFormatString(
+		TEXT_LEFT, SPEED_ITEM_Y,
+		speedSelected ? selectedColor : normalColor,
+		"%sノーツ速度 : %d%%",
+		speedSelected ? ">" : " ",
+		noteSpeedPercent_
+	);
+
 	DrawString(
 		TEXT_LEFT, BACK_ITEM_Y,
-		timingSelected ? "  タイトルへ戻る" : "> タイトルへ戻る",
-		timingSelected ? normalColor : selectedColor
+		backSelected ? "> タイトルへ戻る" : "  タイトルへ戻る",
+		backSelected ? selectedColor : normalColor
 	);
 
 	DrawString(
 		TEXT_LEFT, GUIDE_Y,
-		"上下: 選択    Enter: 決定    BackSpace: 戻る",
+		"上下: 選択    左右: 速度変更    Enter: 決定・保存",
 		normalColor
+	);
+
+	DrawString(TEXT_LEFT, STATUS_Y, speedStatusText_, normalColor);
+
+	// 画面で編集中の値を全て反映
+	noteSpeedPreview_.Draw(
+		NoteSpeedSettings::ToPixelsPerSecond(noteSpeedPercent_)
 	);
 }
 

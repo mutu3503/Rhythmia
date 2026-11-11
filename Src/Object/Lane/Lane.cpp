@@ -50,7 +50,7 @@ void Lane::Update(double musicTimeSeconds)
 	// 全てのノーツを同じ曲の時刻で更新
 	for (NotesBase& note : notes_)
 	{
-		note.Update(musicTimeSeconds, judgeY_);
+		note.Update(musicTimeSeconds, judgeY_, scrollSpeed_);
 	}
 }
 
@@ -172,7 +172,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld, std
 			}
 
 			// 状態変更をこのフレームの描画位置にも反映
-			noteIt->Update(musicTimeSeconds, judgeY_);
+			noteIt->Update(musicTimeSeconds, judgeY_, scrollSpeed_);
 
 			++noteIt;
 			continue;
@@ -211,7 +211,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld, std
 				soundMng.StopHold(laneIdx_);
 				noteIt->MarkMiss();
 				finishedJudgment.push_back(JUDGMENT::MISS);
-				noteIt->Update(musicTimeSeconds, judgeY_);
+				noteIt->Update(musicTimeSeconds, judgeY_, scrollSpeed_);
 
 				ShowJudgment(
 					ResourceManager::SRC::JUDGE_MISS,
@@ -255,7 +255,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld, std
 						soundMng.StartHold(laneIdx_);
 					}
 
-					noteIt->Update(musicTimeSeconds, judgeY_);
+					noteIt->Update(musicTimeSeconds, judgeY_, scrollSpeed_);
 				}
 				else
 				{
@@ -331,7 +331,7 @@ void Lane::Judge(double musicTimeSeconds, bool isKeyPressed, bool isKeyHeld, std
 		soundMng.StartHold(laneIdx_);
 
 		// このフレームから始点を判定ラインに固定する
-		targetIt->Update(musicTimeSeconds, judgeY_);
+		targetIt->Update(musicTimeSeconds, judgeY_, scrollSpeed_);
 	}
 	else
 	{

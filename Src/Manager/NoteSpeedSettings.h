@@ -17,6 +17,9 @@ public:
 	// ノーツの位置計算に使う速度
 	static double LoadPixelsPerSeconds(void);
 
+	// 編集中の速度を位置計算用の速度に変換
+	static double ToPixelsPerSecond(int percent);
+
 private:
 
 	// 100%の時の落下速度

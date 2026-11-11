@@ -65,5 +65,12 @@ bool NoteSpeedSettings::SavePercent(int percent)
 
 double NoteSpeedSettings::LoadPixelsPerSeconds(void)
 {
-    return BASE_PIXELS_PER_SECOND * LoadPercent() / DEFAULT_PERCENT;
+    // 保存済みの値を使う
+    return ToPixelsPerSecond(LoadPercent());
+}
+
+double NoteSpeedSettings::ToPixelsPerSecond(int percent)
+{
+    // プレビューで同じ倍率・同じ速度を使う
+    return BASE_PIXELS_PER_SECOND * ClampPercent(percent) / DEFAULT_PERCENT;
 }

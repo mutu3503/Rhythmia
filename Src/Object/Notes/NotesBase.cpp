@@ -22,15 +22,15 @@ NotesBase::NotesBase(double hitTimeSeconds, double endTimeSeconds,
 {
 }
 
-void NotesBase::Update(double musicTimeSeconds, int judgeY)
+void NotesBase::Update(double musicTimeSeconds, int judgeY, double scrollSpeed)
 {
 	// 始点は、開始時刻に判定ラインへ到着する
 	centerY_ = judgeY
-		- (hitTimeSeconds_ - musicTimeSeconds) * SCROLL_SPEED;
+		- (hitTimeSeconds_ - musicTimeSeconds) * scrollSpeed;
 
 	// 終点は、終了時刻に判定ラインへ到着する
 	endY_ = judgeY
-		- (endTimeSeconds_ - musicTimeSeconds) * SCROLL_SPEED;
+		- (endTimeSeconds_ - musicTimeSeconds) * scrollSpeed;
 
 	if (isHolding_ || (IsHold() && hasMissd_))
 	{

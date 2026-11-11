@@ -1,5 +1,6 @@
 ﻿#include <cmath>
 #include "../../Manager/InputManager.h"
+#include "../../Manager/NoteSpeedSettings.h"
 #include "LaneManager.h"
 
 void LaneManager::Init(void)
@@ -178,6 +179,13 @@ bool LaneManager::SetChart(const std::vector<ChartData>& chartDataList,
 		{
 			chartEndSeconds_ = noteEndSeconds;
 		}
+	}
+
+	const double scrollSpeed = NoteSpeedSettings::LoadPixelsPerSeconds();
+
+	for (Lane& lane : lanes_)
+	{
+		lane.SetScrollSpeed(scrollSpeed);
 	}
 
 	Update(MUSIC_START_SECONDS, false);

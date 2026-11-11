@@ -28,6 +28,12 @@ public:
 	void Judge(double musicTimeSeconds, bool isKeyPressed,
 		bool isKeyHeld, std::vector<JUDGMENT>& finishedJudgment);
 
+	// ノーツを描画する速度を設定
+	void SetScrollSpeed(double pixelsPerSecond)
+	{
+		scrollSpeed_ = pixelsPerSecond;
+	}
+
 private :
 
 	// レーン背景色
@@ -90,6 +96,9 @@ private :
 
 	// 判定画像の表示を終了する曲の時刻
 	double judgmentEndSeconds_ = 0.0;
+
+	// 譜面を配置するときにレーンマネージャーから受け取る速度
+	double scrollSpeed_{};
 
 	// 担当キーの表示名
 	const char* keyName_ = "";

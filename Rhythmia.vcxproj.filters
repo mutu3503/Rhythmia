@@ -120,6 +120,9 @@
     <ClInclude Include="Src\Manager\NoteSpeedSettings.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Object\Notes\NoteSpeedPreview.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\main.cpp">
@@ -219,6 +222,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="Src\Manager\NoteSpeedSettings.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Object\Notes\NoteSpeedPreview.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>

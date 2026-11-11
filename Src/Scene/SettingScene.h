@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "../Object/Notes/NoteSpeedPreview.h"
 #include "SceneBase.h"
 
 class SettingScene : public SceneBase
@@ -11,6 +12,9 @@ public:
 	void Release(void) override;
 
 private:
+
+	// ノーツ速度プレビュー
+	NoteSpeedPreview noteSpeedPreview_;
 
 	// メニュー項目の並び順
 	enum class MenuItem

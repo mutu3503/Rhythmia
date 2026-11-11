@@ -132,6 +132,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Src\Object\Notes\NoteSpeedPreview.h" />
     <ClInclude Include="Src\Manager\NoteSpeedSettings.h" />
     <ClInclude Include="Src\Manager\PlayerSettingsFile.h" />
     <ClInclude Include="Src\Manager\ScoreManager.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="Src\Scene\TimingScene.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Src\Object\Notes\NoteSpeedPreview.cpp" />
     <ClCompile Include="Src\Manager\NoteSpeedSettings.cpp" />
     <ClCompile Include="Src\Manager\PlayerSettingsFile.cpp" />
     <ClCompile Include="Src\Manager\ScoreManager.cpp" />

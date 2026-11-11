@@ -16,7 +16,8 @@ public:
 	);
 
 	// 曲の現在時刻からノーツの位置を更新
-	void Update(double musicTimeSeconds, int judgeY);
+	void Update(double musicTimeSeconds,
+		int judgeY, double scrollSpeed);
 
 	// レーン内にノーツ画像を描画
 	void Draw(int laneLeft,
@@ -61,9 +62,6 @@ public:
 	}
 
 private:
-
-	// ノーツの落下速度
-	static constexpr double SCROLL_SPEED = 300.0;
 
 	// 画像の表示サイズ
 	static constexpr int NOTES_HEIGHT = 36;
